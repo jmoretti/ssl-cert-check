@@ -1,0 +1,30 @@
+name: Automated SSL Certificate Validation
+on: 
+    push:
+        branches:
+            - master
+    schedule:
+        # Run at 9:00 AM M-F DST (UTC-6)
+        - cron:  '0 15 * * 1-5'
+
+jobs:
+    check_ssl_certs_job:
+        runs-on: ubuntu-latest
+        name: Automated SSL Certificate Validation Job
+        steps:
+
+            - name: Checkout
+              uses: actions/checkout@v2
+
+            - name: Check SSL Certs
+              run: ./run.sh
+  
+    alert_on_failure:
+        runs-on: ubuntu-latest
+        name: Report on expiring SSL certificates job
+        if: ${{ failure() }}
+        needs: [check_ssl_certs_job]
+        steps:
+            - name: Notify
+              # Replace with an appropriate notify action here
+              run: echo "A certificate is expring soon!""
